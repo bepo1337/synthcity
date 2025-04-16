@@ -281,8 +281,6 @@ class VAE(nn.Module):
         X: np.ndarray,
         cond: Optional[np.ndarray] = None,
     ) -> Any:
-        # todo save this X somewhere for inspection?
-        # X.to_json("../data/analysis.json", orient="records")
         Xt = self._check_tensor(X)
         condt: Optional[torch.Tensor] = None
 
