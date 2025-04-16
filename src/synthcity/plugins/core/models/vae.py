@@ -360,6 +360,9 @@ class VAE(nn.Module):
         return eps * std + mu
 
     def _train_test_split(self, X: torch.Tensor, cond: Optional[torch.Tensor]) -> Tuple:
+        # if the dataloader_sampler is not set to None, other indices would be used.
+        # in the original synthcity code, the dataloder_sampler is None if it is just split into 80/20. So we do the same for our custom split
+        self.dataloader_sampler = None
         player_id_values_idx = 71 #TODO maybe change if adding new preprocessing steps with dates and reason
        # get index of column player_id.value
         player_id_values = X[:, player_id_values_idx]
