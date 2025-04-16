@@ -365,7 +365,7 @@ class VAE(nn.Module):
        # get index of column player_id.value
         player_id_values = X[:, player_id_values_idx]
 
-        player_ids_np = player_id_values.numpy()
+        player_ids_np = player_id_values.detach().cpu().numpy()
         unique_ids = np.unique(player_ids_np)
         #TODO sort before shuffling to ensure consistency across models for the validation set if they use one?
         np.random.seed(42)
