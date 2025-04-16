@@ -281,6 +281,8 @@ class VAE(nn.Module):
         X: np.ndarray,
         cond: Optional[np.ndarray] = None,
     ) -> Any:
+        # todo save this X somewhere for inspection?
+        # X.to_json("../data/analysis.json", orient="records")
         Xt = self._check_tensor(X)
         condt: Optional[torch.Tensor] = None
 
@@ -358,13 +360,23 @@ class VAE(nn.Module):
         return eps * std + mu
 
     def _train_test_split(self, X: torch.Tensor, cond: Optional[torch.Tensor]) -> Tuple:
-        if self.dataloader_sampler is not None:
-            train_idx, test_idx = self.dataloader_sampler.train_test()
-        else:
-            total = np.arange(0, len(X))
-            np.random.shuffle(total)
-            split = int(len(total) * 0.8)
-            train_idx, test_idx = total[:split], total[split:]
+        player_id_values_idx = 71 #TODO maybe change if adding new preprocessing steps with dates and reason
+       # get index of column player_id.value
+        player_id_values = X[:, player_id_values_idx]
+
+        player_ids_np = player_id_values.numpy()
+        unique_ids = np.unique(player_ids_np)
+        #TODO sort before shuffling to ensure consistency across models for the validation set if they use one?
+        np.random.seed(42)
+        np.random.shuffle(unique_ids)
+        split_point = int(len(unique_ids) * 0.8)
+        train_ids = set(unique_ids[:split_point])
+        val_ids = set(unique_ids[split_point:])
+
+        # create indices from the player ids
+        total_indices = np.arange(len(X))
+        train_idx = total_indices[np.isin(player_ids_np, list(train_ids))]
+        test_idx = total_indices[np.isin(player_ids_np, list(val_ids))]
 
         X_train, X_val = X[train_idx], X[test_idx]
         cond_train, cond_test = None, None
