@@ -361,13 +361,12 @@ class VAE(nn.Module):
         # if the dataloader_sampler is not set to None, other indices would be used.
         # in the original synthcity code, the dataloder_sampler is None if it is just split into 80/20. So we do the same for our custom split
         self.dataloader_sampler = None
-        player_id_values_idx = 71 #TODO maybe change if adding new preprocessing steps with dates and reason
+        player_id_values_idx = 71 # this is the player_id in the tensor
        # get index of column player_id.value
         player_id_values = X[:, player_id_values_idx]
 
         player_ids_np = player_id_values.detach().cpu().numpy()
         unique_ids = np.unique(player_ids_np)
-        #TODO sort before shuffling to ensure consistency across models for the validation set if they use one?
         np.random.seed(42)
         np.random.shuffle(unique_ids)
         split_point = int(len(unique_ids) * 0.8)
